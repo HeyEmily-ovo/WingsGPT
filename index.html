@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wings AI - Intelligent Hub</title>
+    <title>WingsGPT- Your Intelligent AI Assistant</title>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
@@ -99,7 +99,7 @@
 <div id="overlay" onclick="toggleSidebar()"></div>
 
 <aside id="sidebar">
-    <div style="font-family: 'Dancing Script'; font-size: 2.5rem; margin-bottom: 25px; color: #2d5a27;">Wings</div>
+    <div style="font-family: 'Dancing Script'; font-size: 2.5rem; margin-bottom: 25px; color: #2d5a27;">WingsGPT</div>
     <button class="new-chat-btn" onclick="createNewChat()">+ 新建对话</button>
     <div class="history-list" id="history-list"></div>
 </aside>
@@ -107,15 +107,15 @@
 <main>
     <div class="top-nav">
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
-        <span style="font-weight: 600; color: #2d5a27; opacity: 0.7; font-size: 0.8rem; letter-spacing: 1px;">WINGS INTELLIGENCE</span>
+        <span style="font-weight: 600; color: #2d5a27; opacity: 0.7; font-size: 0.8rem; letter-spacing: 1px;">WingsGPT 1.0</span>
     </div>
     
-    <div class="logo">Wings</div>
+    <div class="logo">WingsGPT</div>
     
     <div class="chat-container">
         <div class="header" id="current-chat-title">新对话</div>
         <div id="chat-box"></div>
-        <div id="typing-indicator" style="display:none; padding: 0 30px 10px; color: #52c41a; font-size: 0.8rem; font-style: italic;">Wings 正在思考...</div>
+        <div id="typing-indicator" style="display:none; padding: 0 30px 10px; color: #52c41a; font-size: 0.8rem; font-style: italic;">正在思考...</div>
         <div class="input-area">
             <input type="text" id="user-input" placeholder="输入消息..." onkeypress="if(event.keyCode==13) sendMsg()">
             <button class="new-chat-btn" style="margin:0; padding: 10px 20px;" onclick="sendMsg()">发送</button>
@@ -126,7 +126,7 @@
 </main>
 
 <script>
-    const API_KEY = 'YOUR_API_KEY'; 
+    const API_KEY = 'sk-mwZa72d943f48450d07f3a31b819ed6de168c208706HSz7W'; 
     const BASE_URL = 'https://api.gptsapi.net/v1/chat/completions';
 
     marked.setOptions({ breaks: true, gfm: true });
@@ -173,7 +173,7 @@
         const newChat = {
             id: newId,
             title: "新对话",
-            messages: [{ role: "assistant", content: "你好！我是 **Wings**。很高兴见到你！🍃" }]
+            messages: [{ role: "assistant", content: "你好！我是 **WingsGPT**。请问今天有什么可以帮你的吗？🍃" }]
         };
         allChats.unshift(newChat);
         saveToLocal();
