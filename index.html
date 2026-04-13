@@ -76,7 +76,7 @@
             position: relative;
             width: 90%; 
             max-width: 850px; 
-            height: 90vh;
+            height: 90vh; /* 稍微降低高度，从 85vh 改为 80vh */
             background: var(--glass-bg);
             backdrop-filter: blur(15px);
             box-shadow: 0 20px 40px rgba(0,0,0,0.08); 
@@ -93,7 +93,7 @@
 
         @media (max-width: 768px) {
             .chat-container {
-                height: 75vh;     /* 手机端进一步降低高度，留出空间 */
+                height: 90vh;     
                 margin-top: 80px; /* 手机端顶部留白 */
                 border-radius: 20px; /* 手机端圆角稍微减小更自然 */
             }
