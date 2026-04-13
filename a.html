@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wings AI - Intelligent Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --primary-green: #52c41a;
+            --light-green: #f6ffed;
+            --sidebar-width: 280px;
+            --main-bg: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
+        }
+
+        body { font-family: 'Inter', sans-serif; background: var(--main-bg); margin: 0; display: flex; height: 100vh; overflow: hidden; }
+
+        /* --- 侧边栏 --- */
+        aside {
+            width: var(--sidebar-width); background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(0,0,0,0.05); display: flex; flex-direction: column; padding: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; z-index: 100;
+        }
+        aside.collapsed { margin-left: calc(-1 * var(--sidebar-width) - 40px); }
+
+        .new-chat-btn {
+            background: var(--primary-green); color: white; border: none; padding: 12px;
+            border-radius: 12px; cursor: pointer; font-weight: 600; margin-bottom: 20px; transition: 0.3s;
+        }
+
+        .history-list { flex: 1; overflow-y: auto; }
+        .history-item {
+            position: relative; display: flex; align-items: center; justify-content: space-between;
+            padding: 12px; margin-bottom: 8px; border-radius: 10px; cursor: pointer;
+            font-size: 0.9rem; color: #2d5a27; background: rgba(255,255,255,0.3); transition: 0.2s;
+        }
+        .history-item.active { background: white; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+
+        .item-actions { display: none; gap: 8px; }
+        .history-item:hover .item-actions { display: flex; }
+        .action-btn { border: none; background: none; cursor: pointer; opacity: 0.5; }
+
+        /* --- 主界面 --- */
+        main { 
+            flex: 1; display: flex; flex-direction: column; align-items: center; 
+            position: relative; width: 100%; height: 100vh; overflow: hidden;
+        }
+        .top-nav { width: 100%; padding: 12px 20px; display: flex; align-items: center; background: rgba(255,255,255,0.2); }
+        .menu-toggle { font-size: 1.5rem; background: none; border: none; cursor: pointer; color: #2d5a27; margin-right: 15px; }
+
+        .logo { font-family: 'Dancing Script', cursive; font-size: 3.2rem; color: #2d5a27; margin: 10px 0; }
+
+        /* 修改：自适应高度，为版权预留空间 */
+        .chat-container {
+            width: 94%; max-width: 1000px; 
+            height: calc(100vh - 200px); /* 自动计算剩余空间 */
+            min-height: 400px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 30px; display: flex; flex-direction: column; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1); overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        .header { padding: 12px; text-align: center; font-weight: 600; color: #389e0d; border-bottom: 1px solid rgba(0,0,0,0.03); }
+        #chat-box { flex: 1; overflow-y: auto; padding: 25px 30px; display: flex; flex-direction: column; }
+
+        .message { margin-bottom: 20px; max-width: 85%; padding: 12px 18px; border-radius: 18px; line-height: 1.6; font-size: 0.95rem; }
+        .message strong { font-weight: 800 !important; color: #1a1a1a !important; }
+        
+        .user { background: var(--primary-green); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .ai { background: var(--light-green); border: 1px solid #b7eb8f; align-self: flex-start; border-bottom-left-radius: 4px; color: #2d3436; }
+
+        .input-area { padding: 15px 25px; display: flex; gap: 10px; background: white; border-top: 1px solid #f0f0f0; }
+        input { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #eee; outline: none; }
+
+        /* 正式加入版权样式 */
+        .copyright { 
+            margin-top: auto; /* 推到最底部 */
+            padding: 10px 0;
+            font-size: 0.75rem; 
+            color: rgba(45, 90, 39, 0.6); 
+            text-align: center;
+        }
+
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.2); z-index: 90; }
+
+        @media (max-width: 768px) {
+            aside { position: fixed; left: 0; top: 0; height: 100%; margin-left: calc(-1 * var(--sidebar-width) - 40px); }
+            aside.mobile-open { margin-left: 0; }
+            #overlay.mobile-open { display: block; }
+            .logo { font-size: 2.5rem; margin: 5px 0; }
+            .chat-container { height: calc(100vh - 180px); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="overlay" onclick="toggleSidebar()"></div>
+
+<aside id="sidebar">
+    <div style="font-family: 'Dancing Script'; font-size: 2.5rem; margin-bottom: 25px; color: #2d5a27;">Wings</div>
+    <button class="new-chat-btn" onclick="createNewChat()">+ 新建对话</button>
+    <div class="history-list" id="history-list"></div>
+</aside>
+
+<main>
+    <div class="top-nav">
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+        <span style="font-weight: 600; color: #2d5a27; opacity: 0.7; font-size: 0.8rem; letter-spacing: 1px;">WINGS INTELLIGENCE</span>
+    </div>
+    
+    <div class="logo">Wings</div>
+    
+    <div class="chat-container">
+        <div class="header" id="current-chat-title">新对话</div>
+        <div id="chat-box"></div>
+        <div id="typing-indicator" style="display:none; padding: 0 30px 10px; color: #52c41a; font-size: 0.8rem; font-style: italic;">Wings 正在思考...</div>
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="输入消息..." onkeypress="if(event.keyCode==13) sendMsg()">
+            <button class="new-chat-btn" style="margin:0; padding: 10px 20px;" onclick="sendMsg()">发送</button>
+        </div>
+    </div>
+
+    <div class="copyright">© 2026 Wings Intelligence. Designed for Innovation.</div>
+</main>
+
+<script>
+    const API_KEY = 'YOUR_API_KEY'; 
+    const BASE_URL = 'https://api.gptsapi.net/v1/chat/completions';
+
+    marked.setOptions({ breaks: true, gfm: true });
+
+    let allChats = JSON.parse(localStorage.getItem('wings_v8_final')) || [];
+    let currentChatId = null;
+
+    window.onload = () => {
+        if (allChats.length > 0) loadChat(allChats[0].id);
+        else createNewChat();
+    };
+
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        if (window.innerWidth < 768) {
+            sidebar.classList.toggle('mobile-open');
+            overlay.classList.toggle('mobile-open');
+        } else {
+            sidebar.classList.toggle('collapsed');
+        }
+    }
+
+    function renderHistory() {
+        const list = document.getElementById('history-list');
+        list.innerHTML = '';
+        allChats.forEach(chat => {
+            const item = document.createElement('div');
+            item.className = `history-item ${chat.id === currentChatId ? 'active' : ''}`;
+            item.innerHTML = `
+                <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${chat.title}</span>
+                <div class="item-actions">
+                    <button class="action-btn" onclick="renameChat(event, ${chat.id})">✏️</button>
+                    <button class="action-btn" onclick="deleteChat(event, ${chat.id})">🗑️</button>
+                </div>
+            `;
+            item.onclick = () => { loadChat(chat.id); if (window.innerWidth < 768) toggleSidebar(); };
+            list.appendChild(item);
+        });
+    }
+
+    function createNewChat() {
+        const newId = Date.now();
+        const newChat = {
+            id: newId,
+            title: "新对话",
+            messages: [{ role: "assistant", content: "你好！我是 **Wings**。很高兴见到你！🍃" }]
+        };
+        allChats.unshift(newChat);
+        saveToLocal();
+        loadChat(newId);
+    }
+
+    function loadChat(id) {
+        currentChatId = id;
+        const chat = allChats.find(c => c.id === id);
+        if (!chat) return;
+        document.getElementById('current-chat-title').innerText = chat.title;
+        const box = document.getElementById('chat-box');
+        box.innerHTML = ''; 
+        chat.messages.forEach(m => appendToUI(m.role, m.content));
+        renderHistory();
+    }
+
+    function deleteChat(e, id) {
+        e.stopPropagation();
+        if (!confirm("确定删除对话？")) return;
+        allChats = allChats.filter(c => c.id !== id);
+        saveToLocal();
+        if (currentChatId === id) {
+            if (allChats.length > 0) loadChat(allChats[0].id);
+            else createNewChat();
+        } else renderHistory();
+    }
+
+    async function sendMsg() {
+        const input = document.getElementById('user-input');
+        const text = input.value.trim();
+        if (!text || !currentChatId) return;
+
+        const chat = allChats.find(c => c.id === currentChatId);
+        if (chat.title === "新对话") chat.title = text.substring(0, 10);
+
+        input.value = '';
+        appendToUI('user', text);
+        chat.messages.push({ role: "user", content: text });
+        document.getElementById('typing-indicator').style.display = 'block';
+
+        try {
+            const resp = await fetch(BASE_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY.trim()}` },
+                body: JSON.stringify({ model: "gpt-4.1-mini", messages: chat.messages })
+            });
+            if (!resp.ok) throw new Error();
+            const data = await resp.json();
+            const aiMsg = data.choices[0].message.content;
+            appendToUI('assistant', aiMsg);
+            chat.messages.push({ role: "assistant", content: aiMsg });
+            saveToLocal();
+            renderHistory();
+        } catch (e) {
+            appendToUI('assistant', '❌ 连接失败。');
+        } finally {
+            document.getElementById('typing-indicator').style.display = 'none';
+        }
+    }
+
+    function appendToUI(role, text) {
+        const box = document.getElementById('chat-box');
+        const div = document.createElement('div');
+        const isAI = (role === 'ai' || role === 'assistant');
+        div.className = `message ${isAI ? 'ai' : 'user'}`;
+        if (isAI) div.innerHTML = marked.parse(text); 
+        else div.textContent = text;
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
+    }
+
+    function renameChat(e, id) {
+        e.stopPropagation();
+        const chat = allChats.find(c => c.id === id);
+        const newTitle = prompt("重命名：", chat.title);
+        if (newTitle) { chat.title = newTitle; saveToLocal(); renderHistory(); }
+    }
+
+    function saveToLocal() { localStorage.setItem('wings_v8_final', JSON.stringify(allChats)); }
+</script>
+</body>
+</html>
