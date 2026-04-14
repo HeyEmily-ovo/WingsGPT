@@ -24,8 +24,10 @@
         aside {
             width: var(--sidebar-width); background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px);
             border-right: 1px solid rgba(0,0,0,0.05); display: flex; flex-direction: column; padding: 20px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); position: relative; z-index: 100;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); position: relative; z-index: 200;
         }
+        
+        /* Desktop Collapse */
         aside.collapsed { margin-left: calc(-1 * var(--sidebar-width) - 40px); }
 
         .new-chat-btn {
@@ -51,7 +53,7 @@
 
         /* --- Main UI --- */
         main { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; width: 100%; height: 100vh; overflow: hidden; }
-        .top-nav { width: 100%; padding: 12px 20px; display: flex; align-items: center; background: rgba(255,255,255,0.2); }
+        .top-nav { width: 100%; padding: 12px 20px; display: flex; align-items: center; background: rgba(255,255,255,0.2); z-index: 100; }
         
         /* 树叶开关图标样式 */
         .menu-toggle { 
@@ -70,13 +72,12 @@
             width: 28px; height: 28px;
         }
         
-        /* 收起状态：叶尖指向左侧（通过水平翻转实现） */
+        /* 收起状态或移动端未开启状态：叶尖指向左侧 */
         .sidebar-collapsed .leaf-icon {
             transform: scaleX(-1);
         }
 
         .version-tag { font-weight: 600; color: var(--deep-green); opacity: 0.7; font-size: 0.8rem; letter-spacing: 1px; }
-
         .logo { font-family: 'Dancing Script', cursive; font-size: 3.2rem; color: var(--deep-green); margin: 10px 0; }
 
         .chat-container {
@@ -90,31 +91,8 @@
         .user { background: var(--primary-green); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
         .ai { background: var(--light-green); border: 1px solid #b7eb8f; align-self: flex-start; border-bottom-left-radius: 4px; color: #2d3436; }
 
-        pre { background: #1e1e1e; color: #fff; padding: 15px; border-radius: 12px; overflow-x: auto; margin: 10px 0; }
-        
-        .msg-img-preview { max-width: 240px; border-radius: 12px; cursor: zoom-in; margin-top: 5px; border: 2px solid rgba(255,255,255,0.5); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        
-        .attachment-bubble { 
-            background: rgba(255,255,255,0.6); border-radius: 12px; padding: 12px; 
-            display: flex; align-items: center; gap: 12px; cursor: pointer; 
-            transition: all 0.2s; border: 1px solid rgba(82, 196, 26, 0.2); 
-            color: var(--deep-green);
-        }
-        .attachment-bubble:hover { background: #fff; border-color: var(--primary-green); transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
-
-        #file-status { display: none; padding: 12px 20px; background: rgba(255,255,255,0.95); border-top: 1px solid #f0f0f0; align-items: center; justify-content: center; gap: 15px; }
-        .preview-media-box { width: 50px; height: 50px; overflow: hidden; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: var(--light-green); border: 1px solid #d9f7be; }
-        
         .input-area { padding: 15px 25px; display: flex; gap: 12px; background: white; border-top: 1px solid #f0f0f0; align-items: center; }
         input[type="text"] { flex: 1; padding: 12px 16px; border-radius: 12px; border: 1px solid #eee; outline: none; font-size: 0.95rem; }
-
-        .upload-btn {
-            width: 40px; height: 40px; border-radius: 50%; border: 1px solid #eee;
-            background: #f9f9f9; color: var(--deep-green); cursor: pointer;
-            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
-            transition: 0.2s; flex-shrink: 0;
-        }
-        .upload-btn:hover { background: #f0f0f0; border-color: var(--primary-green); }
 
         .copyright { 
             margin-top: auto; padding: 15px 0; font-size: 0.75rem; 
@@ -125,82 +103,64 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
         .modal-overlay.active { display: flex; }
         
-        .custom-modal { 
-            background: white; padding: 30px; border-radius: 24px; width: 340px; 
-            box-shadow: 0 20px 60px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.8);
-            animation: modalPop 0.3s cubic-bezier(0.17, 0.89, 0.32, 1.28);
+        /* 移动端遮罩 */
+        #mobile-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4); z-index: 150; backdrop-filter: blur(4px);
         }
-        @keyframes modalPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-        .modal-btn { padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; transition: 0.2s; font-size: 0.9rem; }
-        .modal-btn-cancel { background: #f5f5f5; color: #595959; }
-        .modal-btn-cancel:hover { background: #e8e8e8; }
-        .modal-btn-confirm { background: var(--primary-green); color: white; }
-        .modal-btn-danger { background: var(--danger-red); color: white; }
-
-        /* Text Viewer */
-        .text-viewer-modal { 
-            background: white; width: 90%; max-width: 900px; height: 85%; 
-            border-radius: 24px; display: flex; flex-direction: column; 
-            overflow: hidden; box-shadow: 0 30px 90px rgba(0,0,0,0.3);
-        }
-        .text-viewer-header { padding: 18px 25px; background: var(--header-green); display: flex; justify-content: space-between; align-items: center; color: var(--deep-green); border-bottom: 1px solid #b7eb8f; }
-        .text-viewer-content { flex: 1; padding: 30px; overflow-y: auto; white-space: pre-wrap; font-family: 'Consolas', monospace; font-size: 1rem; color: #2d3436; line-height: 1.7; background: var(--light-green); }
-        .close-viewer { background: rgba(0,0,0,0.05); border: none; cursor: pointer; width: 32px; height: 32px; border-radius: 50%; color: var(--deep-green); display: flex; align-items: center; justify-content: center; }
+        #mobile-overlay.active { display: block; }
 
         @media (max-width: 768px) {
-            aside { position: fixed; left: 0; top: 0; height: 100%; margin-left: -320px; }
+            aside { position: fixed; left: 0; top: 0; height: 100%; margin-left: calc(-1 * var(--sidebar-width) - 50px); box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
             aside.mobile-open { margin-left: 0; }
+            .logo { font-size: 2.5rem; }
+            .chat-container { height: calc(100vh - 180px); width: 96%; }
+            .message { max-width: 95%; }
         }
     </style>
 </head>
-<body id="app-body">
+<body id="app-body" class="sidebar-collapsed"> <!-- 默认收起 -->
 
-<div id="overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.3); z-index:150;" onclick="toggleSidebar()"></div>
+<div id="mobile-overlay" onclick="toggleSidebar()"></div>
 
-<!-- Lightbox -->
+<!-- Modals (Lightbox, Text Viewer, Rename, Delete) -->
 <div id="lightbox" class="modal-overlay" onclick="closeModal('lightbox')">
     <img id="lightbox-img" style="max-width:90%; max-height:90%; border-radius:12px;" src="">
 </div>
 
-<!-- Text Viewer -->
 <div id="text-viewer" class="modal-overlay">
-    <div class="text-viewer-modal">
-        <div class="text-viewer-header">
-            <div style="display:flex; align-items:center; gap:10px;">
-                <span>📄</span><span id="text-viewer-title">文件预览</span>
-            </div>
-            <button class="close-viewer" onclick="closeModal('text-viewer')">✕</button>
+    <div style="background: white; width: 90%; max-width: 900px; height: 85%; border-radius: 24px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 30px 90px rgba(0,0,0,0.3);">
+        <div style="padding: 18px 25px; background: var(--header-green); display: flex; justify-content: space-between; align-items: center; color: var(--deep-green); border-bottom: 1px solid #b7eb8f;">
+            <div style="display:flex; align-items:center; gap:10px;"><span>📄</span><span id="text-viewer-title">文件预览</span></div>
+            <button style="background: rgba(0,0,0,0.05); border: none; cursor: pointer; width: 32px; height: 32px; border-radius: 50%; color: var(--deep-green); display: flex; align-items: center; justify-content: center;" onclick="closeModal('text-viewer')">✕</button>
         </div>
-        <div id="text-viewer-body" class="text-viewer-content"></div>
+        <div id="text-viewer-body" style="flex: 1; padding: 30px; overflow-y: auto; white-space: pre-wrap; font-family: 'Consolas', monospace; font-size: 1rem; color: #2d3436; line-height: 1.7; background: var(--light-green);"></div>
     </div>
 </div>
 
-<!-- Rename Modal -->
 <div id="rename-modal" class="modal-overlay">
-    <div class="custom-modal">
+    <div style="background: white; padding: 30px; border-radius: 24px; width: 340px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);">
         <div style="font-weight:600; margin-bottom:15px; font-size: 1.1rem; color: var(--deep-green);">✏️ 重命名对话</div>
         <input type="text" id="rename-input" style="width:100%; padding:12px; border:1px solid #eee; border-radius:10px; margin-bottom:20px; box-sizing: border-box;" placeholder="输入新的标题...">
         <div style="display:flex; justify-content:flex-end; gap:12px;">
-            <button class="modal-btn modal-btn-cancel" onclick="closeModal('rename-modal')">取消</button>
-            <button class="modal-btn modal-btn-confirm" onclick="confirmRename()">保存修改</button>
+            <button style="padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; background: #f5f5f5; color: #595959;" onclick="closeModal('rename-modal')">取消</button>
+            <button style="padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; background: var(--primary-green); color: white;" onclick="confirmRename()">保存修改</button>
         </div>
     </div>
 </div>
 
-<!-- Delete Modal -->
 <div id="delete-modal" class="modal-overlay">
-    <div class="custom-modal">
+    <div style="background: white; padding: 30px; border-radius: 24px; width: 340px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);">
         <div style="font-weight:600; margin-bottom:12px; font-size: 1.1rem; color: #595959;">🗑️ 删除对话</div>
         <div style="color: #8c8c8c; font-size: 0.9rem; margin-bottom: 25px; line-height: 1.5;">确定要永久删除这段对话吗？此操作无法撤销。</div>
         <div style="display:flex; justify-content:flex-end; gap:12px;">
-            <button class="modal-btn modal-btn-cancel" onclick="closeModal('delete-modal')">取消</button>
-            <button class="modal-btn modal-btn-danger" onclick="confirmDelete()">确认删除</button>
+            <button style="padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; background: #f5f5f5; color: #595959;" onclick="closeModal('delete-modal')">取消</button>
+            <button style="padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; background: var(--danger-red); color: white;" onclick="confirmDelete()">确认删除</button>
         </div>
     </div>
 </div>
 
-<aside id="sidebar">
+<aside id="sidebar" class="collapsed"> <!-- 初始状态设为收起 -->
     <div style="font-family: 'Dancing Script'; font-size: 2.5rem; margin-bottom: 25px; color: var(--deep-green);">WingsGPT</div>
     <button class="new-chat-btn" onclick="createNewChat()">+ 新建对话</button>
     <div class="history-list" id="history-list"></div>
@@ -214,15 +174,15 @@
                 <path d="M2 21L12 15" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
         </button>
-        <span class="version-tag">WingsGPT 1.2</span>
+        <span class="version-tag">WingsGPT 1.0</span>
     </div>
     <div class="logo">WingsGPT</div>
     <div class="chat-container">
         <div id="chat-box"></div>
         <div id="typing-indicator" style="display:none; padding: 10px 30px; color: var(--primary-green); font-size: 0.8rem; font-style: italic;">正在思考中...</div>
         
-        <div id="file-status">
-            <div class="preview-media-box" id="preview-media"></div>
+        <div id="file-status" style="display: none; padding: 12px 20px; background: rgba(255,255,255,0.95); border-top: 1px solid #f0f0f0; align-items: center; justify-content: center; gap: 15px;">
+            <div id="preview-media" style="width: 50px; height: 50px; overflow: hidden; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: var(--light-green); border: 1px solid #d9f7be;"></div>
             <div style="flex:1;">
                 <div id="file-name-display" style="font-weight:600; font-size:0.9rem; color:var(--deep-green); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:200px;">文件名</div>
                 <div style="font-size: 11px; color: #888;">附件已就绪</div>
@@ -232,7 +192,7 @@
 
         <div class="input-area">
             <input type="file" id="file-input" style="display:none" accept="image/*,.txt,.md,.py,.js,.html,.css,.json,.c,.cpp">
-            <button class="upload-btn" onclick="document.getElementById('file-input').click()">+</button>
+            <button style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid #eee; background: #f9f9f9; color: var(--deep-green); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;" onclick="document.getElementById('file-input').click()">+</button>
             <input type="text" id="user-input" placeholder="输入消息..." onkeypress="if(event.keyCode==13) sendMsg()">
             <button class="new-chat-btn" style="margin:0; padding: 10px 20px;" onclick="sendMsg()">发送</button>
         </div>
@@ -257,6 +217,26 @@
         else createNewChat();
         document.getElementById('file-input').addEventListener('change', handleFileSelect);
     };
+
+    // 核心切换逻辑：兼容桌面端和移动端
+    function toggleSidebar() { 
+        const sidebar = document.getElementById('sidebar');
+        const body = document.getElementById('app-body');
+        const overlay = document.getElementById('mobile-overlay');
+        const isMobile = window.innerWidth <= 768;
+
+        if (isMobile) {
+            // 移动端逻辑
+            sidebar.classList.toggle('mobile-open');
+            overlay.classList.toggle('active');
+            // 移动端也同步 body 类名来旋转树叶
+            body.classList.toggle('sidebar-collapsed', !sidebar.classList.contains('mobile-open'));
+        } else {
+            // 桌面端逻辑
+            sidebar.classList.toggle('collapsed');
+            body.classList.toggle('sidebar-collapsed');
+        }
+    }
 
     function handleFileSelect(e) {
         const file = e.target.files[0];
@@ -323,11 +303,12 @@
             if (msgObj.attachment.type === 'image') {
                 const img = document.createElement('img');
                 img.src = msgObj.attachment.content; img.className = 'msg-img-preview';
+                img.style = "max-width: 240px; border-radius: 12px; cursor: zoom-in; margin-top: 5px; border: 2px solid rgba(255,255,255,0.5); box-shadow: 0 4px 10px rgba(0,0,0,0.1);";
                 img.onclick = () => { document.getElementById('lightbox-img').src = img.src; document.getElementById('lightbox').classList.add('active'); };
                 div.appendChild(img);
             } else {
                 const attBtn = document.createElement('div');
-                attBtn.className = 'attachment-bubble';
+                attBtn.style = "background: rgba(255,255,255,0.6); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.2s; border: 1px solid rgba(82, 196, 26, 0.2); color: var(--deep-green);";
                 attBtn.innerHTML = `<span>📄</span> <span style="font-size:0.85rem; font-weight:600;">${msgObj.attachment.name}</span>`;
                 attBtn.onclick = () => { document.getElementById('text-viewer-title').innerText = msgObj.attachment.name; document.getElementById('text-viewer-body').innerText = msgObj.attachment.content; document.getElementById('text-viewer').classList.add('active'); };
                 div.appendChild(attBtn);
@@ -342,11 +323,16 @@
         const box = document.getElementById('chat-box'); box.innerHTML = '';
         chat.messages.forEach(m => appendToUI(m.role, m.uiData || { text: typeof m.content === 'string' ? m.content : "多模态" }));
         renderHistory(); updateTypingIndicator();
+        // 移动端加载对话后自动关闭侧边栏
+        if (window.innerWidth <= 768) {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar.classList.contains('mobile-open')) toggleSidebar();
+        }
     }
 
     function createNewChat() {
         const id = Date.now();
-        allChats.unshift({ id, title: "新对话", messages: [{ role: "assistant", content: "你好！我是 **WingsGPT**。请问今天有什么可以帮你的吗？🍃" }] });
+        allChats.unshift({ id, title: "新对话", messages: [{ role: "assistant", content: "你好！我已准备好协助你。🍃" }] });
         saveToLocal(); loadChat(id);
     }
 
@@ -362,24 +348,15 @@
 
     function openRenameModal(e, id) { e.stopPropagation(); tempActionId = id; document.getElementById('rename-input').value = allChats.find(c=>c.id===id).title; document.getElementById('rename-modal').classList.add('active'); }
     function confirmRename() { const val = document.getElementById('rename-input').value.trim(); if(val) { allChats.find(c => c.id === tempActionId).title = val; saveToLocal(); renderHistory(); } closeModal('rename-modal'); }
-    
     function openDeleteModal(e, id) { e.stopPropagation(); tempActionId = id; document.getElementById('delete-modal').classList.add('active'); }
     function confirmDelete() {
         allChats = allChats.filter(c => c.id !== tempActionId);
         saveToLocal();
-        if (currentChatId === tempActionId) {
-            if (allChats.length > 0) loadChat(allChats[0].id); else createNewChat();
-        } else renderHistory();
+        if (currentChatId === tempActionId) { if (allChats.length > 0) loadChat(allChats[0].id); else createNewChat(); } else renderHistory();
         closeModal('delete-modal');
     }
 
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-    function toggleSidebar() { 
-        const sidebar = document.getElementById('sidebar');
-        const body = document.getElementById('app-body');
-        sidebar.classList.toggle('collapsed');
-        body.classList.toggle('sidebar-collapsed');
-    }
     function updateTypingIndicator() { document.getElementById('typing-indicator').style.display = loadingChats.has(currentChatId) ? 'block' : 'none'; }
     function saveToLocal() { localStorage.setItem('wings_vision_v25', JSON.stringify(allChats)); }
 </script>
