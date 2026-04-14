@@ -46,6 +46,7 @@
         .history-item:hover { background: rgba(255,255,255,0.6); }
         .history-item.active { background: white; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 
+        /* 桌面端默认：Hover才显示 */
         .item-actions { display: none; gap: 8px; margin-left: 8px; }
         .history-item:hover .item-actions { display: flex; }
         .action-btn { border: none; background: none; cursor: pointer; padding: 2px; font-size: 0.9rem; opacity: 0.6; transition: 0.2s; }
@@ -55,7 +56,6 @@
         main { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; width: 100%; height: 100vh; overflow: hidden; }
         .top-nav { width: 100%; padding: 12px 20px; display: flex; align-items: center; background: rgba(255,255,255,0.2); z-index: 100; }
         
-        /* 树叶开关图标样式 */
         .menu-toggle { 
             display: flex; align-items: center; justify-content: center;
             width: 42px; height: 42px; border-radius: 12px;
@@ -66,16 +66,12 @@
         }
         .menu-toggle:hover { background: white; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.08); }
         
-        /* 树叶 SVG 基础状态：指向右侧 */
         .leaf-icon {
             transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
             width: 28px; height: 28px;
         }
         
-        /* 收起状态或移动端未开启状态：叶尖指向左侧 */
-        .sidebar-collapsed .leaf-icon {
-            transform: scaleX(-1);
-        }
+        .sidebar-collapsed .leaf-icon { transform: scaleX(-1); }
 
         .version-tag { font-weight: 600; color: var(--deep-green); opacity: 0.7; font-size: 0.8rem; letter-spacing: 1px; }
         .logo { font-family: 'Dancing Script', cursive; font-size: 3.2rem; color: var(--deep-green); margin: 10px 0; }
@@ -103,7 +99,6 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
         .modal-overlay.active { display: flex; }
         
-        /* 移动端遮罩 */
         #mobile-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.4); z-index: 150; backdrop-filter: blur(4px);
@@ -113,17 +108,30 @@
         @media (max-width: 768px) {
             aside { position: fixed; left: 0; top: 0; height: 100%; margin-left: calc(-1 * var(--sidebar-width) - 50px); box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
             aside.mobile-open { margin-left: 0; }
+            
+            /* --- 修复移动端操作图标显示 --- */
+            .item-actions { 
+                display: flex !important; /* 强制显示图标，不依赖 hover */
+                opacity: 1 !important; 
+                gap: 15px; /* 增加图标间距 */
+            }
+            .action-btn { 
+                font-size: 1.2rem; /* 增大图标字号 */
+                padding: 6px; /* 增加点击热区 */
+                opacity: 0.8;
+            }
+            
             .logo { font-size: 2.5rem; }
             .chat-container { height: calc(100vh - 180px); width: 96%; }
             .message { max-width: 95%; }
         }
     </style>
 </head>
-<body id="app-body" class="sidebar-collapsed"> <!-- 默认收起 -->
+<body id="app-body" class="sidebar-collapsed">
 
 <div id="mobile-overlay" onclick="toggleSidebar()"></div>
 
-<!-- Modals (Lightbox, Text Viewer, Rename, Delete) -->
+<!-- Modals -->
 <div id="lightbox" class="modal-overlay" onclick="closeModal('lightbox')">
     <img id="lightbox-img" style="max-width:90%; max-height:90%; border-radius:12px;" src="">
 </div>
@@ -160,7 +168,7 @@
     </div>
 </div>
 
-<aside id="sidebar" class="collapsed"> <!-- 初始状态设为收起 -->
+<aside id="sidebar" class="collapsed">
     <div style="font-family: 'Dancing Script'; font-size: 2.5rem; margin-bottom: 25px; color: var(--deep-green);">WingsGPT</div>
     <button class="new-chat-btn" onclick="createNewChat()">+ 新建对话</button>
     <div class="history-list" id="history-list"></div>
@@ -174,7 +182,7 @@
                 <path d="M2 21L12 15" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
         </button>
-        <span class="version-tag">WingsGPT 1.0</span>
+        <span class="version-tag">WingsGPT 1.2</span>
     </div>
     <div class="logo">WingsGPT</div>
     <div class="chat-container">
@@ -218,7 +226,6 @@
         document.getElementById('file-input').addEventListener('change', handleFileSelect);
     };
 
-    // 核心切换逻辑：兼容桌面端和移动端
     function toggleSidebar() { 
         const sidebar = document.getElementById('sidebar');
         const body = document.getElementById('app-body');
@@ -226,13 +233,10 @@
         const isMobile = window.innerWidth <= 768;
 
         if (isMobile) {
-            // 移动端逻辑
             sidebar.classList.toggle('mobile-open');
             overlay.classList.toggle('active');
-            // 移动端也同步 body 类名来旋转树叶
             body.classList.toggle('sidebar-collapsed', !sidebar.classList.contains('mobile-open'));
         } else {
-            // 桌面端逻辑
             sidebar.classList.toggle('collapsed');
             body.classList.toggle('sidebar-collapsed');
         }
@@ -302,13 +306,13 @@
         if (msgObj.attachment) {
             if (msgObj.attachment.type === 'image') {
                 const img = document.createElement('img');
-                img.src = msgObj.attachment.content; img.className = 'msg-img-preview';
+                img.src = msgObj.attachment.content;
                 img.style = "max-width: 240px; border-radius: 12px; cursor: zoom-in; margin-top: 5px; border: 2px solid rgba(255,255,255,0.5); box-shadow: 0 4px 10px rgba(0,0,0,0.1);";
                 img.onclick = () => { document.getElementById('lightbox-img').src = img.src; document.getElementById('lightbox').classList.add('active'); };
                 div.appendChild(img);
             } else {
                 const attBtn = document.createElement('div');
-                attBtn.style = "background: rgba(255,255,255,0.6); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.2s; border: 1px solid rgba(82, 196, 26, 0.2); color: var(--deep-green);";
+                attBtn.style = "background: rgba(255,255,255,0.6); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; border: 1px solid rgba(82, 196, 26, 0.2); color: var(--deep-green);";
                 attBtn.innerHTML = `<span>📄</span> <span style="font-size:0.85rem; font-weight:600;">${msgObj.attachment.name}</span>`;
                 attBtn.onclick = () => { document.getElementById('text-viewer-title').innerText = msgObj.attachment.name; document.getElementById('text-viewer-body').innerText = msgObj.attachment.content; document.getElementById('text-viewer').classList.add('active'); };
                 div.appendChild(attBtn);
@@ -323,7 +327,6 @@
         const box = document.getElementById('chat-box'); box.innerHTML = '';
         chat.messages.forEach(m => appendToUI(m.role, m.uiData || { text: typeof m.content === 'string' ? m.content : "多模态" }));
         renderHistory(); updateTypingIndicator();
-        // 移动端加载对话后自动关闭侧边栏
         if (window.innerWidth <= 768) {
             const sidebar = document.getElementById('sidebar');
             if (sidebar.classList.contains('mobile-open')) toggleSidebar();
@@ -332,7 +335,7 @@
 
     function createNewChat() {
         const id = Date.now();
-        allChats.unshift({ id, title: "新对话", messages: [{ role: "assistant", content: "你好！我已准备好协助你。🍃" }] });
+        allChats.unshift({ id, title: "新对话", messages: [{ role: "assistant", content: "你好！我是 **WingsGPT**。请问今天有什么可以帮你的吗？🍃" }] });
         saveToLocal(); loadChat(id);
     }
 
