@@ -1,5 +1,5 @@
 // --- 配置信息 ---
-const API_KEY = 'sk-wd7cf05da44ee1733e8711835b456ae27c1cbb3b0f8Fakb9'; 
+const API_KEY = 'sk-aOg6ea0b713f15e40275dffa26d434079934badf2f3m7MJD'; 
 const BASE_URL = 'https://api.gptsapi.net/v1/chat/completions';
 
 // --- 状态变量 ---
@@ -132,7 +132,7 @@ async function sendMsg() {
                 'Authorization': `Bearer ${API_KEY.trim()}` 
             },
             body: JSON.stringify({ 
-                model: "gpt-4o-mini", 
+                model: "gemini-2.5-flash", 
                 messages: chat.messages.map(m => ({ role: m.role, content: m.content })) 
             })
         });
