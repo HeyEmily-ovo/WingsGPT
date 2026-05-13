@@ -1,5 +1,6 @@
 // --- 配置信息 ---
-const BASE_URL = '/api/chat';
+const API_KEY = 'sk-aOg6ea0b713f15e40275dffa26d434079934badf2f3m7MJD';
+const BASE_URL = 'https://api.gptsapi.net/v1/chat/completions';
 
 // --- 状态变量 ---
 let allChats = JSON.parse(localStorage.getItem('wings_vision_v25')) || [];
@@ -137,7 +138,10 @@ async function sendMsg() {
     try {
         const resp = await fetch(BASE_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${API_KEY.trim()}`
+            },
             body: JSON.stringify({
                 model: "gemini-2.5-flash",
                 messages: chat.messages.map(m => ({ role: m.role, content: m.content })),

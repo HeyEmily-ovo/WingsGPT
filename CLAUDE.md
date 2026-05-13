@@ -8,12 +8,9 @@ WingsGPT 1.2 is a single-page web chat app — a ChatGPT-style interface built w
 
 ## Running the app
 
-```bash
-npm install
-npm start        # → http://localhost:3000
-```
+Open `index.html` directly in a browser, or `npm install && npm start` for the Node.js proxy on port 3000.
 
-The Node.js backend (`server.js`) serves the frontend statically and proxies `/api/chat` to the upstream AI API, keeping the API key on the server side in `.env`.
+Deployed via GitHub Pages at `heyemily-ovo.github.io/WingsGPT`.
 
 ## Architecture
 
@@ -28,7 +25,7 @@ Three files form the entire application:
 
 **File handling:** `FileReader` reads uploaded files. Images are base64-encoded and sent as `image_url` content blocks. Text files are inlined into the message content string.
 
-**API:** The frontend posts to `/api/chat`, which `server.js` proxies to `https://api.gptsapi.net/v1/chat/completions` (OpenAI-compatible proxy). The model is `gemini-2.5-flash`. The API key lives only in `.env` on the server.
+**API:** Posts to `https://api.gptsapi.net/v1/chat/completions` (OpenAI-compatible proxy). The model is `gemini-2.5-flash`. When deployed on GitHub Pages the API key is in the frontend; the `server.js` proxy uses `.env` for local runs.
 
 **Sidebar:** Collapses via CSS `margin-left` on desktop, uses `position: fixed` with overlay on mobile (≤768px). The `sidebar-collapsed` class on `<body>` toggles the leaf icon direction.
 
