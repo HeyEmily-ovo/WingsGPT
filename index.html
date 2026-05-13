@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WingsGPT - Your Intelligent AI Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body id="app-body" class="sidebar-collapsed">
+
+<div id="mobile-overlay" onclick="toggleSidebar()"></div>
+
+<div id="lightbox" class="modal-overlay" onclick="closeModal('lightbox')">
+    <img id="lightbox-img" style="max-width:90%; max-height:90%; border-radius:12px;" src="">
+</div>
+
+<div id="text-viewer" class="modal-overlay">
+    <div class="modal-container text-viewer-container">
+        <div class="modal-header">
+            <div class="header-title"><span>📄</span><span id="text-viewer-title">文件预览</span></div>
+            <button class="close-modal-btn" onclick="closeModal('text-viewer')">✕</button>
+        </div>
+        <div id="text-viewer-body" class="modal-body"></div>
+    </div>
+</div>
+
+<div id="rename-modal" class="modal-overlay">
+    <div class="modal-card">
+        <div class="modal-title">✏️ 重命名对话</div>
+        <input type="text" id="rename-input" class="modal-input" placeholder="输入新的标题...">
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal('rename-modal')">取消</button>
+            <button class="btn-primary" onclick="confirmRename()">保存修改</button>
+        </div>
+    </div>
+</div>
+
+<div id="delete-modal" class="modal-overlay">
+    <div class="modal-card">
+        <div class="modal-title" style="color: #595959;">🗑️ 删除对话</div>
+        <div class="modal-desc">确定要永久删除这段对话吗？此操作无法撤销。</div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal('delete-modal')">取消</button>
+            <button class="btn-danger" onclick="confirmDelete()">确认删除</button>
+        </div>
+    </div>
+</div>
+
+<aside id="sidebar" class="collapsed">
+    <div class="sidebar-logo">WingsGPT</div>
+    <button class="new-chat-btn" onclick="createNewChat()">+ 新建对话</button>
+    <div class="history-list" id="history-list"></div>
+</aside>
+
+<main>
+    <div class="top-nav">
+        <button class="menu-toggle" onclick="toggleSidebar()" title="收起/展开侧边栏">
+            <svg class="leaf-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 21C2 21 7 20 12 15C17 10 22 9 22 9C22 9 21 14 16 19C11 24 2 21 2 21Z" fill="currentColor" fill-opacity="0.8"/>
+                <path d="M2 21L12 15" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+        </button>
+        <span class="version-tag">WingsGPT 1.2</span>
+    </div>
+    <div class="logo">WingsGPT</div>
+    
+    <div class="chat-container">
+        <div id="chat-box"></div>
+        <div id="typing-indicator">正在思考中...</div>
+        
+        <div id="file-status">
+            <div id="preview-media"></div>
+            <div class="file-info">
+                <div id="file-name-display">文件名</div>
+                <div class="file-sub">附件已就绪</div>
+            </div>
+            <button onclick="clearPendingFile()" class="clear-file-btn">✕</button>
+        </div>
+
+        <div class="input-area">
+            <input type="file" id="file-input" style="display:none" accept="image/*,.txt,.md,.py,.js,.html,.css,.json,.c,.cpp">
+            <button class="upload-trigger" onclick="document.getElementById('file-input').click()">+</button>
+            <input type="text" id="user-input" placeholder="输入消息..." onkeypress="if(event.keyCode==13) sendMsg()">
+            <button class="send-btn" onclick="sendMsg()">发送</button>
+        </div>
+    </div>
+    <div class="copyright">© 2026 Wings Intelligence. Designed for Innovation.</div>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
